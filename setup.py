@@ -7,7 +7,8 @@ dependencies = [
     'numba',
     'pymorphy2',
     'compress_fasttext',
-    'stop_words'
+    'stop_words',
+    'BeautifulSoup'
 ]
 
 setup(
