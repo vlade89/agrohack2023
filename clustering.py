@@ -24,8 +24,14 @@ for file in os.listdir(INPUT_DATA_PATH):
     my_soup = read_resume(file)
     resumes.append(parse_resume(my_soup))
 
-data = pd.DataFrame.from_records(resumes).assign(
-    one_name=lambda df: df['name'].apply(lambda txt: re.split('[,/.]', txt)[0].strip('./!? '))
+data = (
+    pd.DataFrame
+    .from_records(resumes)
+    .assign(
+        one_name=lambda df: df['name'].apply(lambda txt: re.split('[,/.]', txt)[0].strip('./!? '))
+    )
+    .reset_index()
+    .rename(columns={'index': 'id'})
 )
 proc = Preprocessing()
 data['tokens_for_clustering'] = proc.process_texts(data, 'one_name')
@@ -37,7 +43,7 @@ clustered_data = (
             lambda txt: np.array([VECTORIZER[token] for token in txt]).mean(axis=0)
         )
     )
-)[['one_name', 'ft_vectors']]
+)[['id', 'one_name', 'ft_vectors']]
 
 ft_vectors = np.concatenate(
     clustered_data['ft_vectors'].values
