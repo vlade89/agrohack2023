@@ -3,21 +3,18 @@ import pandas as pd
 from scipy.spatial.distance import pdist, squareform
 
 
-def calculate_center(df: pd.DataFrame, clusters_col_name: str) -> pd.DataFrame:
+def calculate_center(df: pd.DataFrame, clusters_col_name: str, num: int) -> pd.DataFrame:
     df_clusters = (
         df
         .groupby(clusters_col_name, as_index=False)
         .agg(
             cluster_size=('id', 'count'),
-            cluster_mode=('one_name', lambda s: s.mode()[0])
+            cluster_mode=('one_name', lambda s: s.mode()[0]),
         )
-        .rename(columns={clusters_col_name: 'cluster_id'})
     )
-    # df_clusters = df[clusters_col_name].value_counts().reset_index()
-    # df_clusters.columns = ['cluster_id', 'cluster_size']
 
     centers, vectors = [], []
-    for cluster_id in df_clusters.cluster_id:
+    for cluster_id in df_clusters[clusters_col_name]:
         cluster_phrases = df.loc[df[clusters_col_name] == cluster_id, 'one_name'].values
         cluster_embeddings = df.loc[df[clusters_col_name] == cluster_id, 'ft_vectors'].values
 
@@ -30,6 +27,13 @@ def calculate_center(df: pd.DataFrame, clusters_col_name: str) -> pd.DataFrame:
 
     df_clusters['cluster_center'] = centers
     df_clusters['cluster_center_vector'] = vectors
+    df_clusters.columns = [
+        clusters_col_name,
+        f'cluster_{num}_size',
+        f'cluster_{num}_mode',
+        f'cluster_{num}_center',
+        f'cluster_{num}_center_vector'
+    ]
     return df_clusters
 
 
