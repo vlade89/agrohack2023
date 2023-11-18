@@ -3,12 +3,17 @@ from setuptools import setup
 dependencies = [
     'numpy',
     'pandas',
+    'scipy',
     'scikit-learn',
     'numba',
     'pymorphy2',
     'compress_fasttext',
     'stop_words',
-    'BeautifulSoup'
+    'BeautifulSoup',
+    'clusteval',
+    'plotly',
+    'matplotlib',
+    'gensim',
 ]
 
 setup(
