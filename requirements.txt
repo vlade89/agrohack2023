@@ -1,0 +1,13 @@
+numpy
+pandas
+scipy
+scikit-learn
+numba
+pymorphy2
+compress_fasttext
+stop_words
+beautifulsoup4
+clusteval
+plotly
+matplotlib
+gensim
