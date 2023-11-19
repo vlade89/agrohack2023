@@ -10,24 +10,51 @@ import pandas as pd
 from sklearn import cluster
 from sklearn.metrics import silhouette_score
 
-from nlp_utils import Preprocessing
-from read_data import parse_resume, read_resume
-from statictics import calculate_center
+from lib.nlp_utils import Preprocessing
+from lib.read_data import parse_resume, read_resume
+from lib.statictics import calculate_center
 
 logging.basicConfig(level=logging.INFO)
 
 
-def build_clusters(input_data_path, output_data_path, model_path, max_n_clusters=100):
+def build_clusters(
+        input_data_path: str,
+        output_data_path: str,
+        model_path: str,
+        max_n_clusters: int = 100,
+        min_n_clusters: int = 2
+) -> pd.DataFrame:
+    """
+    Loads, processes and vectorizes the data. Clusterizes embeddings and culculates clusters' centers
+    for each number of clusters in range from 'min_n_clusters' to 'max_n_clusters'.
+
+    Args:
+        input_data_path: a path to the folder with input data
+        output_data_path: a path to the folder with output data
+        model_path: a path to the vectorizer
+        max_n_clusters: the maximum number of cluster
+        min_n_clusters: the minimum number of cluster
+
+    Returns:
+        A table including the clusters' labels and clusters' centers
+        for each number of clusters in range from 'min_n_clusters' to 'max_n_clusters'.
+    """
+
+    # loading FastText vectors
     vectorizer = compress_fasttext.models.CompressedFastTextKeyedVectors.load(model_path)
+
+    # setting random state for reproducibility
     seed = 2023
     random.seed(seed)
 
+    # reading html files
     resumes = []
     for file in os.listdir(input_data_path):
         my_soup = read_resume(file)
         resumes.append(parse_resume(my_soup))
     logging.info('Total number of resumes: ', len(resumes))
 
+    # selecting only one if several specialties are specified
     data = (
         pd.DataFrame
         .from_records(resumes)
@@ -39,6 +66,7 @@ def build_clusters(input_data_path, output_data_path, model_path, max_n_clusters
     )
     logging.info('Data shape:', data.shape)
 
+    # cleaning, tokenizing and vectorizing
     logging.info('Preprecessing texts...')
     proc = Preprocessing()
     data['tokens_for_clustering'] = proc.process_texts(data, 'one_name')
@@ -52,13 +80,15 @@ def build_clusters(input_data_path, output_data_path, model_path, max_n_clusters
         )
     )[['id', 'one_name', 'ft_vectors']]
 
+    # transferring to numpy
     ft_vectors = np.concatenate(
         clustered_data['ft_vectors'].values
     ).reshape(clustered_data.shape[0], -1)
 
+    # performing clustering in a loop
     logging.info('Making clusterisation...')
     output_dfs = []
-    for num in range(2, max_n_clusters):
+    for num in range(min_n_clusters, max_n_clusters):
         cl = cluster.AgglomerativeClustering(n_clusters=num)
         tmp_clustered = clustered_data.copy()
 
@@ -88,6 +118,3 @@ def build_clusters(input_data_path, output_data_path, model_path, max_n_clusters
     logging.info('First row: %s', clustered_data.iloc[0, :])
 
     return output_data
-
-
-build_clusters('data/', '.', 'nlp_model/small_model_11_18', max_n_clusters=100)

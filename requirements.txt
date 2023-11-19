@@ -11,3 +11,9 @@ clusteval
 plotly
 matplotlib
 gensim
+plotly
+dash
+dash_cytoscape
+dash_html_components
+dash_bootstrap_components
+dash_core_components
