@@ -29,11 +29,14 @@ def calculate_center(df: pd.DataFrame, clusters_col_name: str, num: int) -> pd.D
     df_clusters['cluster_center_vector'] = vectors
     df_clusters.columns = [
         clusters_col_name,
-        f'cluster_{num}_size',
-        f'cluster_{num}_mode',
-        f'cluster_{num}_center',
-        f'cluster_{num}_center_vector'
+        'cluster_size',
+        'cluster_mode',
+        'cluster_center',
+        'cluster_center_vector'
     ]
+
+    df_clusters['num_clusters'] = num
+
     return df_clusters
 
 
