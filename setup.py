@@ -14,6 +14,7 @@ dependencies = [
     'plotly',
     'matplotlib',
     'gensim',
+    'fake_useragent'
 ]
 
 setup(
