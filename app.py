@@ -19,6 +19,8 @@ sh.setFormatter(formatter)
 root_logger.addHandler(sh)
 
 
+from lib.clustering import build_clusters
+
 DEFAULT_TSNE = 40
 
 CLUSTER_VECTOR_SIZE = 16
@@ -384,4 +386,5 @@ def display_nodedata(datalist):
 
 
 if __name__ == "__main__":
+    build_clusters('data/', '.', 'nlp_model/small_model_11_18', max_n_clusters=100)
     app.run_server(debug=False)

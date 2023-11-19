@@ -4,15 +4,19 @@ RUN pip install --upgrade pip
 
 WORKDIR /agrohack2023
 
+COPY /jupyter_nb .
+
 COPY /data .
+
+COPY /outputs .
+
+COPY /nlp_model .
 
 COPY lib .
 
-COPY clustering.py .
+COPY app.py .
 
 COPY LICENSE .
-
-COPY main.py .
 
 COPY README.md .
 
@@ -20,4 +24,4 @@ COPY requirements.txt .
 
 RUN pip install -r requirements.txt
 
-CMD ["python", "main.py"]
+CMD ["python", "app.py"]
