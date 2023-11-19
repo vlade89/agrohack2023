@@ -1,4 +1,5 @@
 import os
+import sys
 import random
 import re
 import logging
@@ -12,6 +13,8 @@ from sklearn.metrics import silhouette_score
 from lib.nlp_utils import Preprocessing
 from lib.read_data import parse_resume, read_resume
 from lib.statictics import calculate_center
+
+logging.basicConfig(level=logging.INFO)
 
 
 def build_clusters(
@@ -84,29 +87,34 @@ def build_clusters(
 
     # performing clustering in a loop
     logging.info('Making clusterisation...')
+    output_dfs = []
     for num in range(min_n_clusters, max_n_clusters):
-        cl = cluster.AgglomerativeClustering(
-            n_clusters=num
-        )
-        clustered_data[f'{num}_clusters'] = cl.fit_predict(ft_vectors)
+        cl = cluster.AgglomerativeClustering(n_clusters=num)
+        tmp_clustered = clustered_data.copy()
+
+        tmp_clustered['num_clusters'], tmp_clustered['cluster_id'] = num, cl.fit_predict(ft_vectors)
         score = silhouette_score(ft_vectors, cl.labels_)
 
-        stats = calculate_center(clustered_data, f'{num}_clusters', num)
-        clustered_data = clustered_data.merge(
+        stats = calculate_center(tmp_clustered, 'cluster_id', num)
+        tmp_clustered = tmp_clustered.merge(
             stats,
             how='left',
-            on=f'{num}_clusters'
+            on=['cluster_id'],
+            suffixes=[None, '_y']
         )
-        clustered_data['score'] = score
+        del tmp_clustered['num_clusters_y']
 
-    # saving resumes
+        tmp_clustered['score'] = score
+
+        output_dfs.append(tmp_clustered)
+
+    output_data = pd.concat(output_dfs)
+
     data.to_csv(output_data_path + 'resumes.csv', index=False)
+    # clustered_data.to_csv('clustered_data.csv')
+    output_data.to_csv('clustered_data.csv')
+    logging.info('Resulting data shape: %s', clustered_data.shape)
+    logging.info('Columns: %s', clustered_data.columns)
+    logging.info('First row: %s', clustered_data.iloc[0, :])
 
-    # saving resulting table with labels of clusters
-    clustered_data.to_csv('clustered_data.csv')
-
-    logging.info('Resulting data shape: ', clustered_data.shape)
-    logging.info('Columns: ', clustered_data.columns)
-    logging.info('First row: ', clustered_data.iloc[0, :])
-
-    return clustered_data
+    return output_data
