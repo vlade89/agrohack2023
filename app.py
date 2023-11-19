@@ -1,5 +1,15 @@
 import logging
 
+import dash
+import dash_bootstrap_components as dbc
+import dash_core_components as dcc
+import dash_cytoscape as cyto
+import dash_html_components as html
+import pandas as pd
+import plotly.express as px
+from dash.dependencies import Input, Output
+from sklearn.manifold import TSNE
+
 logger = logging.getLogger(__name__)
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
@@ -8,16 +18,6 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 sh.setFormatter(formatter)
 root_logger.addHandler(sh)
 
-import dash
-import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_cytoscape as cyto
-import dash_html_components as html
-import numpy as np
-import pandas as pd
-import plotly.express as px
-from dash.dependencies import Input, Output
-from sklearn.manifold import TSNE
 
 DEFAULT_TSNE = 40
 

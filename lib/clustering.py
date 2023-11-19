@@ -1,8 +1,7 @@
+import logging
 import os
-import sys
 import random
 import re
-import logging
 
 import compress_fasttext
 import numpy as np
