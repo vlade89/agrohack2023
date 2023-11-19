@@ -1,4 +1,5 @@
 import os
+import sys
 import random
 import re
 import logging
@@ -91,8 +92,8 @@ def build_clusters(
         clustered_data[f'{num}_clusters'] = cl.fit_predict(ft_vectors)
         score = silhouette_score(ft_vectors, cl.labels_)
 
-        stats = calculate_center(clustered_data, f'{num}_clusters', num)
-        clustered_data = clustered_data.merge(
+        stats = calculate_center(tmp_clustered, 'cluster_id', num)
+        tmp_clustered = tmp_clustered.merge(
             stats,
             how='left',
             on=f'{num}_clusters'
